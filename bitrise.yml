@@ -36,9 +36,6 @@ workflows:
     description: Run lint and tests on pull requests.
     steps:
       - git-clone@8: {}
-      - node@1:
-          inputs:
-            - node_version: "18"
       - npm@3:
           title: npm install
           inputs:
