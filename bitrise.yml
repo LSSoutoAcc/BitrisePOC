@@ -90,10 +90,6 @@ workflows:
       - cocoapods-install@3:
           inputs:
             - is_cache_disabled: "true"
-      - npm@1:
-          title: Install CocoaPods
-          inputs:
-            - command: run install:pods
       - fastlane@2:
           inputs:
             - lane: ios build_personal
@@ -106,7 +102,7 @@ workflows:
   deploy:
     description: Run tests, Android build and iOS build on main.
     before_run:
-      - primary
+      # - primary
       - android_build
       - ios_build
 
