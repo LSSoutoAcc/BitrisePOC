@@ -35,7 +35,6 @@ workflows:
   primary:
     description: Run lint and tests on pull requests.
     steps:
-      - activate-ssh-key@4: {}
       - git-clone@8: {}
       - restore-npm-cache@3: {}
       - npm@3:
@@ -54,12 +53,10 @@ workflows:
             - workdir: "$WORKDIR"
             - command: run test:ci
       - save-npm-cache@1: {}
-      - deploy-to-bitrise-io@2: {}
 
   android_build:
     description: Manual Android build workflow.
     steps:
-      - activate-ssh-key@4: {}
       - git-clone@8: {}
       - npm@3:
           title: npm install
@@ -86,7 +83,6 @@ workflows:
         stack: osx-xcode-26.6.x
         machine_type_id: g2.mac.large
     steps:
-      - activate-ssh-key@4: {}
       - git-clone@8: {}
       - npm@3:
           title: npm install
