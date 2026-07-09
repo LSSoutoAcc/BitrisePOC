@@ -100,7 +100,7 @@ workflows:
           title: Install CocoaPods
           inputs:
             - command: run install:pods
-      - fastlane@3.15.0:
+      - fastlane@2:
           inputs:
             - lane: ios build_personal
             - working_directory: ios
