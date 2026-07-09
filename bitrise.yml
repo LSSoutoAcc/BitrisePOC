@@ -6,115 +6,118 @@ app:
     - NODE_ENV: production
     - FASTLANE_SKIP_UPDATE_CHECK: "1"
     - FASTLANE_HIDE_TIMESTAMP: "1"
+    - WORKDIR: "."
+      opts:
+        is_expand: false
+    - PROJECT_LOCATION: android
+      opts:
+        is_expand: false
+    - MODULE: app
+      opts:
+        is_expand: false
+    - VARIANT: Debug
+      opts:
+        is_expand: false
+    - BITRISE_PROJECT_PATH: ios/BitrisePOC.xcworkspace
+      opts:
+        is_expand: false
+    - BITRISE_SCHEME: BitrisePOC
+      opts:
+        is_expand: false
+    - BITRISE_DISTRIBUTION_METHOD: development
+      opts:
+        is_expand: false
+    - PERSONAL_TEAM_ID: PP4QA5RWRG
+      opts:
+        is_expand: false
 
 workflows:
-
-  # ─────────────────────────────────────────
-  # Lint + Testes — roda em todo PR
-  # ─────────────────────────────────────────
-  check:
+  primary:
+    description: Run lint and tests on pull requests.
     steps:
       - activate-ssh-key@4: {}
       - git-clone@8: {}
-      - node@1:
+      - restore-npm-cache@3: {}
+      - npm@3:
+          title: npm install
           inputs:
-            - node_version: "18"
-      - npm@1:
-          title: Install dependencies
-          inputs:
+            - workdir: "$WORKDIR"
             - command: install
-      - npm@1:
-          title: Lint
+      - npm@3:
+          title: npm lint
           inputs:
+            - workdir: "$WORKDIR"
             - command: run lint
-      - npm@1:
-          title: Tests
+      - npm@3:
+          title: npm test
           inputs:
+            - workdir: "$WORKDIR"
             - command: run test:ci
+      - save-npm-cache@1: {}
+      - deploy-to-bitrise-io@2: {}
 
-  # ─────────────────────────────────────────
-  # Build Android via Gradlew (sem Fastlane)
-  # ─────────────────────────────────────────
   android_build:
-    before_run:
-      - check
+    description: Manual Android build workflow.
     steps:
       - activate-ssh-key@4: {}
       - git-clone@8: {}
-      - node@1:
+      - npm@3:
+          title: npm install
           inputs:
-            - node_version: "18"
-      - npm@1:
-          title: Install dependencies
-          inputs:
+            - workdir: "$WORKDIR"
             - command: install
-
-      # - file-downloader@1:
-      #     title: Download Keystore
-      #     inputs:
-      #       - source: $BITRISEIO_ANDROID_KEYSTORE_URL
-      #       - destination: $BITRISE_SOURCE_DIR/android/app/release.keystore
-
+      - install-missing-android-tools@3:
+          inputs:
+            - gradlew_path: "$PROJECT_LOCATION/gradlew"
       - script@1:
-          title: Gradlew - Clean
+          title: Gradlew - Assemble Debug
           inputs:
             - content: |
-                cd $BITRISE_SOURCE_DIR/android
-                ./gradlew clean
-
-      - script@1:
-          title: Gradlew - Assemble Release
-          inputs:
-            - content: |
-                cd $BITRISE_SOURCE_DIR/android
-                  ./gradlew assembleDebug
-
+                npm run build:android
       - deploy-to-bitrise-io@2:
-          title: Upload APK como artefato
+          title: Upload APK
           inputs:
-            - deploy_path: $BITRISE_SOURCE_DIR/android/app/build/outputs/apk/debug/
+            - deploy_path: "$BITRISE_SOURCE_DIR/android/app/build/outputs/apk/debug"
 
-  # ─────────────────────────────────────────
-  # Build iOS via Fastlane (Personal Team)
-  # ─────────────────────────────────────────
   ios_build:
-    before_run:
-      - check
+    description: Manual iOS build workflow for Apple Personal Team.
     meta:
       bitrise.io:
-        stack: osx-xcode-15
+        stack: osx-xcode-26.6.x
+        machine_type_id: g2.mac.large
     steps:
       - activate-ssh-key@4: {}
       - git-clone@8: {}
-      - node@1:
+      - npm@3:
+          title: npm install
           inputs:
-            - node_version: "18"
-      - npm@1:
-          title: Install dependencies
-          inputs:
+            - workdir: "$WORKDIR"
             - command: install
+      - cocoapods-install@3:
+          inputs:
+            - is_cache_disabled: "true"
       - npm@1:
           title: Install CocoaPods
           inputs:
             - command: run install:pods
-      - npm@1:
-          title: Fastlane - iOS Personal Team
+      - fastlane@3.15.0:
           inputs:
-            - command: run build:ios
-          envs:
-            - PERSONAL_TEAM_ID: $PERSONAL_TEAM_ID
+            - lane: ios build_personal
+            - working_directory: ios
       - deploy-to-bitrise-io@2:
-          title: Upload IPA como artefato
+          title: Upload IPA
           inputs:
-            - deploy_path: $BITRISE_SOURCE_DIR/build/BitrisePOC-debug.ipa
+            - deploy_path: "$BITRISE_SOURCE_DIR/ios/build/BitrisePOC-debug.ipa"
 
-# ─────────────────────────────────────────
-# Triggers
-# ─────────────────────────────────────────
+  deploy:
+    description: Run tests, Android build and iOS build on main.
+    before_run:
+      - primary
+      - android_build
+      - ios_build
+
 trigger_map:
   - push_branch: main
-    workflow: android_build
-  - push_branch: main
-    workflow: ios_build
+    workflow: deploy
   - pull_request_source_branch: "*"
-    workflow: check
+    workflow: primary
