@@ -97,10 +97,10 @@ workflows:
           title: Install CocoaPods
           inputs:
             - command: run install:pods
-      - fastlane@3:
+      - npm@1:
           title: Fastlane - iOS Personal Team
           inputs:
-            - lane: ios build_personal
+            - command: run build:ios
           envs:
             - PERSONAL_TEAM_ID: $PERSONAL_TEAM_ID
       - deploy-to-bitrise-io@2:
