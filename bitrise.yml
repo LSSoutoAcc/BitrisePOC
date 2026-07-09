@@ -36,7 +36,9 @@ workflows:
     description: Run lint and tests on pull requests.
     steps:
       - git-clone@8: {}
-      - restore-npm-cache@3: {}
+      - node@1:
+          inputs:
+            - node_version: "18"
       - npm@3:
           title: npm install
           inputs:
@@ -52,7 +54,6 @@ workflows:
           inputs:
             - workdir: "$WORKDIR"
             - command: run test:ci
-      - save-npm-cache@1: {}
 
   android_build:
     description: Manual Android build workflow.
@@ -66,11 +67,11 @@ workflows:
       - install-missing-android-tools@3:
           inputs:
             - gradlew_path: "$PROJECT_LOCATION/gradlew"
-      - script@1:
+      - npm@3:
           title: Gradlew - Assemble Debug
           inputs:
-            - content: |
-                npm run build:android
+            - workdir: "$WORKDIR"
+            - command: run build:android
       - deploy-to-bitrise-io@2:
           title: Upload APK
           inputs:
