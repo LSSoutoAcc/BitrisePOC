@@ -4,43 +4,117 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 app:
   envs:
     - NODE_ENV: production
+    - FASTLANE_SKIP_UPDATE_CHECK: "1"
+    - FASTLANE_HIDE_TIMESTAMP: "1"
 
 workflows:
-  primary:
-    description: CI — testa e builda o app
+
+  # ─────────────────────────────────────────
+  # Lint + Testes — roda em todo PR
+  # ─────────────────────────────────────────
+  check:
     steps:
       - activate-ssh-key@4: {}
       - git-clone@8: {}
-
       - node@1:
           inputs:
-            - node_version: "23"
+            - node_version: "18"
+      - npm@1:
+          title: Install dependencies
+          inputs:
+            - command: install
+      - npm@1:
+          title: Lint
+          inputs:
+            - command: run lint
+      - npm@1:
+          title: Tests
+          inputs:
+            - command: run test:ci
 
+  # ─────────────────────────────────────────
+  # Build Android via Gradlew (sem Fastlane)
+  # ─────────────────────────────────────────
+  android_build:
+    before_run:
+      - check
+    steps:
+      - activate-ssh-key@4: {}
+      - git-clone@8: {}
+      - node@1:
+          inputs:
+            - node_version: "18"
       - npm@1:
           title: Install dependencies
           inputs:
             - command: install
 
-      - npm@1:
-          title: Run lint
-          inputs:
-            - command: run lint
-
-      - npm@1:
-          title: Run tests
-          inputs:
-            - command: test -- --watchAll=false
-
-      # Android
-      - android-build@1:
-          inputs:
-            - project_location: $BITRISE_SOURCE_DIR/android
-            - variant: release
-
-      # iOS (apenas em stacks macOS)
-      # - xcode-archive@5:
+      # - file-downloader@1:
+      #     title: Download Keystore
       #     inputs:
-      #       - project_path: $BITRISE_SOURCE_DIR/ios/BitrisePOC.xcworkspace
-      #       - scheme: BitrisePOC
+      #       - source: $BITRISEIO_ANDROID_KEYSTORE_URL
+      #       - destination: $BITRISE_SOURCE_DIR/android/app/release.keystore
 
-      - deploy-to-bitrise-io@2: {}
+      - script@1:
+          title: Gradlew - Clean
+          inputs:
+            - content: |
+                cd $BITRISE_SOURCE_DIR/android
+                ./gradlew clean
+
+      - script@1:
+          title: Gradlew - Assemble Release
+          inputs:
+            - content: |
+                cd $BITRISE_SOURCE_DIR/android
+                  ./gradlew assembleDebug
+
+      - deploy-to-bitrise-io@2:
+          title: Upload APK como artefato
+          inputs:
+            - deploy_path: $BITRISE_SOURCE_DIR/android/app/build/outputs/apk/debug/
+
+  # ─────────────────────────────────────────
+  # Build iOS via Fastlane (Personal Team)
+  # ─────────────────────────────────────────
+  ios_build:
+    before_run:
+      - check
+    meta:
+      bitrise.io:
+        stack: osx-xcode-15
+    steps:
+      - activate-ssh-key@4: {}
+      - git-clone@8: {}
+      - node@1:
+          inputs:
+            - node_version: "18"
+      - npm@1:
+          title: Install dependencies
+          inputs:
+            - command: install
+      - npm@1:
+          title: Install CocoaPods
+          inputs:
+            - command: run install:pods
+      - fastlane@3:
+          title: Fastlane - iOS Personal Team
+          inputs:
+            - lane: ios build_personal
+          envs:
+            - PERSONAL_TEAM_ID: $PERSONAL_TEAM_ID
+      - deploy-to-bitrise-io@2:
+          title: Upload IPA como artefato
+          inputs:
+            - deploy_path: $BITRISE_SOURCE_DIR/build/BitrisePOC-debug.ipa
+
+# ─────────────────────────────────────────
+# Triggers
+# ─────────────────────────────────────────
+trigger_map:
+  - push_branch: main
+    workflow: android_build
+  - push_branch: main
+    workflow: ios_build
+  - pull_request_source_branch: "*"
+    workflow: check
