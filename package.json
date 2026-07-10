@@ -8,6 +8,7 @@
     "lint": "npx eslint .",
     "start": "react-native start",
     "test": "jest",
+    "validate": "npm install && npm run lint && npm run test:ci",
     "test:ci": "jest --watchAll=false --coverage --ci",
     "build:android": "cd android && ./gradlew clean && ./gradlew assembleDebug",
     "build:ios": "cd ios && fastlane ios build_personal",

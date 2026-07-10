@@ -39,17 +39,17 @@ workflows:
         title: npm install
         inputs:
         - workdir: "$WORKDIR"
-        - command: install
+        - command: validate
     # - npm@3:
     #     title: npm lint
     #     inputs:
     #     - workdir: "$WORKDIR"
     #     - command: run lint
-    - npm@3:
-        title: npm test
-        inputs:
-        - workdir: "$WORKDIR"
-        - command: run test:ci
+    # - npm@3:
+    #     title: npm test
+    #     inputs:
+    #     - workdir: "$WORKDIR"
+    #     - command: run test:ci
   android_build:
     description: Manual Android build workflow.
     steps:
