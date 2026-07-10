@@ -36,39 +36,19 @@ workflows:
     steps:
     - git-clone@8: {}
     - restore-npm-cache@3: {}
-    - script@1:
-        title: Install dependencies and run tests
+    - yarn@0:
         inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -ex
-
-            # Check Node and NPM versions
-            node --version
-            npm --version
-
-            # Clean install dependencies based on package-lock.json
-            npm ci
-
-            # Check node_modules
-            ls -la node_modules
-
-            # Run linter
-            npm install eslint
-            npm run lint
-
-            # Run test suite
-            npm install jest
-            npm test
+        - command: install
+    - yarn@0:
+        inputs:
+        - command: test
     - save-npm-cache@1: {}
   android_build:
     description: Manual Android build workflow.
     steps:
     - git-clone@8: {}
-    - npm@3:
-        title: npm install
+    - yarn@0:
         inputs:
-        - workdir: "$WORKDIR"
         - command: install
     - install-missing-android-tools@3:
         inputs:
@@ -90,10 +70,8 @@ workflows:
         machine_type_id: g2.mac.large
     steps:
     - git-clone@8: {}
-    - npm@3:
-        title: npm install
+    - yarn@0:
         inputs:
-        - workdir: "$WORKDIR"
         - command: install
     - cocoapods-install@3:
         inputs:
