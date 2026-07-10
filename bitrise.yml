@@ -42,6 +42,9 @@ workflows:
     - yarn@0:
         inputs:
         - command: test
+    - yarn@0:
+        inputs:
+        - command: lint
     - save-npm-cache@1: {}
   android_build:
     description: Manual Android build workflow.
