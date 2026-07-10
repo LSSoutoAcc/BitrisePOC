@@ -36,15 +36,18 @@ workflows:
     steps:
     - git-clone@8: {}
     - restore-npm-cache@3: {}
-    - yarn@0:
+    - yarn@2.0:
         inputs:
         - command: install
-    - yarn@0:
+        - workdir: $BITRISE_SOURCE_DIR
+    - yarn@2.0:
         inputs:
         - command: test
-    - yarn@0:
+        - workdir: $BITRISE_SOURCE_DIR
+    - yarn@2.0:
         inputs:
         - command: lint
+        - workdir: $BITRISE_SOURCE_DIR
     - save-npm-cache@1: {}
   android_build:
     description: Manual Android build workflow.
