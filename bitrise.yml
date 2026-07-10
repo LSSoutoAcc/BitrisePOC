@@ -54,9 +54,11 @@ workflows:
             ls -la node_modules
 
             # Run linter
+            npm install eslint
             npm run lint
 
             # Run test suite
+            npm install jest
             npm test
     - save-npm-cache@1: {}
   android_build:
