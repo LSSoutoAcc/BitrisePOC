@@ -64,10 +64,6 @@ workflows:
         inputs:
         - workdir: "$WORKDIR"
         - command: run build:android
-    # - deploy-to-bitrise-io@2:
-    #     title: Upload APK
-    #     inputs:
-    #     - deploy_path: "$BITRISE_SOURCE_DIR/android/app/build/outputs/apk/debug"
   ios_build:
     description: Manual iOS build workflow for Apple Personal Team.
     meta:
@@ -96,3 +92,17 @@ trigger_map:
   workflow: deploy
 - pull_request_source_branch: "*"
   workflow: js_validation
+pipelines:
+  mobile:
+    workflows:
+      js_validation: {}
+      android_build:
+        depends_on:
+        - js_validation
+      ios_build:
+        depends_on:
+        - js_validation
+      notificate:
+        depends_on:
+        - ios_build
+        - android_build
