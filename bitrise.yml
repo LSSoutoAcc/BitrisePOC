@@ -42,7 +42,7 @@ workflows:
         - workdir: "$WORKDIR"
     - yarn@2.0:
         inputs:
-        - command: install --verbose
+        - command: install
         - workdir: "$WORKDIR"
     - yarn@2.0:
         inputs:
