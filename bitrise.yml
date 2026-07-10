@@ -31,7 +31,7 @@ app:
     opts:
       is_expand: false
 workflows:
-  primary:
+  js_validation:
     description: Run lint and tests on pull requests.
     steps:
     - git-clone@8: {}
@@ -87,24 +87,26 @@ workflows:
     - cocoapods-install@3:
         inputs:
         - is_cache_disabled: 'true'
-    - script@1:
-        title: Run inline shell script
-        inputs:
-        - content: cd ios
-    - certificate-and-profile-installer@1: {}
-    - fastlane@2:
-        inputs:
-        - lane: ios build_personal
-        - working_directory: ios
-        - update_fastlane: false
-        - work_dir: "$BITRISE_SOURCE_DIR/ios"
-    - deploy-to-bitrise-io@2:
-        title: Upload IPA
-        inputs:
-        - deploy_path: "$BITRISE_SOURCE_DIR/ios/build/BitrisePOC-debug.ipa"
+    # - script@1:
+    #     title: Run inline shell script
+    #     inputs:
+    #     - content: cd ios
+    # - certificate-and-profile-installer@1: {}
+    # - fastlane@2:
+    #     inputs:
+    #     - lane: ios build_personal
+    #     - working_directory: ios
+    #     - update_fastlane: false
+    #     - work_dir: "$BITRISE_SOURCE_DIR/ios"
+    # - deploy-to-bitrise-io@2:
+    #     title: Upload IPA
+    #     inputs:
+    #     - deploy_path: "$BITRISE_SOURCE_DIR/ios/build/BitrisePOC-debug.ipa"
   deploy:
     description: Run tests, Android build and iOS build on main.
     before_run:
+    - js_validation
+    - android_build
     - ios_build
 trigger_map:
 - push_branch: main
