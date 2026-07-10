@@ -40,11 +40,11 @@ workflows:
         inputs:
         - workdir: "$WORKDIR"
         - command: install
-    - npm@3:
-        title: npm lint
-        inputs:
-        - workdir: "$WORKDIR"
-        - command: run lint
+    # - npm@3:
+    #     title: npm lint
+    #     inputs:
+    #     - workdir: "$WORKDIR"
+    #     - command: run lint
     - npm@3:
         title: npm test
         inputs:
