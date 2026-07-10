@@ -39,7 +39,7 @@ workflows:
         title: npm install
         inputs:
         - workdir: "$WORKDIR"
-        - command: validate
+        - command: run validate
     # - npm@3:
     #     title: npm lint
     #     inputs:
