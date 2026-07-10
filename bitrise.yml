@@ -1,79 +1,76 @@
-format_version: "13"
+---
+format_version: '13'
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-
 app:
   envs:
-    - NODE_ENV: production
-    - FASTLANE_SKIP_UPDATE_CHECK: "1"
-    - FASTLANE_HIDE_TIMESTAMP: "1"
-    - WORKDIR: "."
-      opts:
-        is_expand: false
-    - PROJECT_LOCATION: android
-      opts:
-        is_expand: false
-    - MODULE: app
-      opts:
-        is_expand: false
-    - VARIANT: Debug
-      opts:
-        is_expand: false
-    - BITRISE_PROJECT_PATH: ios/BitrisePOC.xcworkspace
-      opts:
-        is_expand: false
-    - BITRISE_SCHEME: BitrisePOC
-      opts:
-        is_expand: false
-    - BITRISE_DISTRIBUTION_METHOD: development
-      opts:
-        is_expand: false
-    - PERSONAL_TEAM_ID: PP4QA5RWRG
-      opts:
-        is_expand: false
-
+  - NODE_ENV: production
+  - FASTLANE_SKIP_UPDATE_CHECK: '1'
+  - FASTLANE_HIDE_TIMESTAMP: '1'
+  - WORKDIR: "."
+    opts:
+      is_expand: false
+  - PROJECT_LOCATION: android
+    opts:
+      is_expand: false
+  - MODULE: app
+    opts:
+      is_expand: false
+  - VARIANT: Debug
+    opts:
+      is_expand: false
+  - BITRISE_PROJECT_PATH: ios/BitrisePOC.xcworkspace
+    opts:
+      is_expand: false
+  - BITRISE_SCHEME: BitrisePOC
+    opts:
+      is_expand: false
+  - BITRISE_DISTRIBUTION_METHOD: development
+    opts:
+      is_expand: false
+  - PERSONAL_TEAM_ID: PP4QA5RWRG
+    opts:
+      is_expand: false
 workflows:
   primary:
     description: Run lint and tests on pull requests.
     steps:
-      - git-clone@8: {}
-      - npm@3:
-          title: npm install
-          inputs:
-            - workdir: "$WORKDIR"
-            - command: install
-      - npm@3:
-          title: npm lint
-          inputs:
-            - workdir: "$WORKDIR"
-            - command: run lint
-      - npm@3:
-          title: npm test
-          inputs:
-            - workdir: "$WORKDIR"
-            - command: run test:ci
-
+    - git-clone@8: {}
+    - npm@3:
+        title: npm install
+        inputs:
+        - workdir: "$WORKDIR"
+        - command: install
+    - npm@3:
+        title: npm lint
+        inputs:
+        - workdir: "$WORKDIR"
+        - command: run lint
+    - npm@3:
+        title: npm test
+        inputs:
+        - workdir: "$WORKDIR"
+        - command: run test:ci
   android_build:
     description: Manual Android build workflow.
     steps:
-      - git-clone@8: {}
-      - npm@3:
-          title: npm install
-          inputs:
-            - workdir: "$WORKDIR"
-            - command: install
-      - install-missing-android-tools@3:
-          inputs:
-            - gradlew_path: "$PROJECT_LOCATION/gradlew"
-      - npm@3:
-          title: Gradlew - Assemble Debug
-          inputs:
-            - workdir: "$WORKDIR"
-            - command: run build:android
-      - deploy-to-bitrise-io@2:
-          title: Upload APK
-          inputs:
-            - deploy_path: "$BITRISE_SOURCE_DIR/android/app/build/outputs/apk/debug"
-
+    - git-clone@8: {}
+    - npm@3:
+        title: npm install
+        inputs:
+        - workdir: "$WORKDIR"
+        - command: install
+    - install-missing-android-tools@3:
+        inputs:
+        - gradlew_path: "$PROJECT_LOCATION/gradlew"
+    - npm@3:
+        title: Gradlew - Assemble Debug
+        inputs:
+        - workdir: "$WORKDIR"
+        - command: run build:android
+    - deploy-to-bitrise-io@2:
+        title: Upload APK
+        inputs:
+        - deploy_path: "$BITRISE_SOURCE_DIR/android/app/build/outputs/apk/debug"
   ios_build:
     description: Manual iOS build workflow for Apple Personal Team.
     meta:
@@ -81,37 +78,35 @@ workflows:
         stack: osx-xcode-26.6.x
         machine_type_id: g2.mac.large
     steps:
-      - git-clone@8: {}
-      - npm@3:
-          title: npm install
-          inputs:
-            - workdir: "$WORKDIR"
-            - command: install
-      - cocoapods-install@3:
-          inputs:
-            - is_cache_disabled: "true"
-      - script@1:
-          title: Run inline shell script
-          inputs:
-              - content: cd ios
-      - fastlane@2:
-          inputs:
-            - lane: ios build_personal
-            - working_directory: ios
-      - deploy-to-bitrise-io@2:
-          title: Upload IPA
-          inputs:
-            - deploy_path: "$BITRISE_SOURCE_DIR/ios/build/BitrisePOC-debug.ipa"
-
+    - git-clone@8: {}
+    - npm@3:
+        title: npm install
+        inputs:
+        - workdir: "$WORKDIR"
+        - command: install
+    - cocoapods-install@3:
+        inputs:
+        - is_cache_disabled: 'true'
+    - script@1:
+        title: Run inline shell script
+        inputs:
+        - content: cd ios
+    - fastlane@2:
+        inputs:
+        - lane: ios build_personal
+        - working_directory: ios
+        - update_fastlane: false
+        - work_dir: $BITRISE_SOURCE_DIR/ios
+    - deploy-to-bitrise-io@2:
+        title: Upload IPA
+        inputs:
+        - deploy_path: "$BITRISE_SOURCE_DIR/ios/build/BitrisePOC-debug.ipa"
   deploy:
     description: Run tests, Android build and iOS build on main.
     before_run:
-      # - primary 
-      # - android_build
-      - ios_build
-
+    - ios_build
 trigger_map:
-  - push_branch: main
-    workflow: deploy
-  - pull_request_source_branch: "*"
-    workflow: primary
+- push_branch: main
+  workflow: deploy
+- pull_request_source_branch: "*"
+  workflow: primary
