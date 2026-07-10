@@ -90,10 +90,11 @@ workflows:
       - cocoapods-install@3:
           inputs:
             - is_cache_disabled: "true"
-      - fastlane@2:
+      - npm@3:
+          title: Fastlane
           inputs:
-            - lane: ios build_personal
-            - working_directory: ios
+            - workdir: "$WORKDIR"
+            - command: run build:ios
       - deploy-to-bitrise-io@2:
           title: Upload IPA
           inputs:
