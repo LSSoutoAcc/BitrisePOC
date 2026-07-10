@@ -3,7 +3,7 @@ format_version: '13'
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 app:
   envs:
-  - NODE_ENV: production
+  - NODE_ENV: development
   - FASTLANE_SKIP_UPDATE_CHECK: '1'
   - FASTLANE_HIDE_TIMESTAMP: '1'
   - WORKDIR: "."
@@ -38,10 +38,6 @@ workflows:
     - restore-npm-cache@3: {}
     - yarn@2.0:
         inputs:
-        - command: cache clean
-        - workdir: "$WORKDIR"
-    - yarn@2.0:
-        inputs:
         - command: install
         - workdir: "$WORKDIR"
     - yarn@2.0:
@@ -68,10 +64,10 @@ workflows:
         inputs:
         - workdir: "$WORKDIR"
         - command: run build:android
-    - deploy-to-bitrise-io@2:
-        title: Upload APK
-        inputs:
-        - deploy_path: "$BITRISE_SOURCE_DIR/android/app/build/outputs/apk/debug"
+    # - deploy-to-bitrise-io@2:
+    #     title: Upload APK
+    #     inputs:
+    #     - deploy_path: "$BITRISE_SOURCE_DIR/android/app/build/outputs/apk/debug"
   ios_build:
     description: Manual iOS build workflow for Apple Personal Team.
     meta:
