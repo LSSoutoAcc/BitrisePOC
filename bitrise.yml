@@ -90,11 +90,14 @@ workflows:
       - cocoapods-install@3:
           inputs:
             - is_cache_disabled: "true"
-      - npm@3:
-          title: Fastlane
+      - script@1:
+          title: Run inline shell script
           inputs:
-            - workdir: "$WORKDIR"
-            - command: run build:ios
+              - content: cd ios
+      - fastlane@2:
+          inputs:
+            - lane: ios build_personal
+            - working_directory: ios
       - deploy-to-bitrise-io@2:
           title: Upload IPA
           inputs:
@@ -103,7 +106,8 @@ workflows:
   deploy:
     description: Run tests, Android build and iOS build on main.
     before_run:
-      - android_build
+      # - primary 
+      # - android_build
       - ios_build
 
 trigger_map:
