@@ -7,7 +7,7 @@
     "ios": "react-native run-ios",
     "lint": "npx eslint@8.57.1 .",
     "start": "react-native start",
-    "test": "npx jest@29.7.0",
+    "test": "ls -la && npx jest@29.7.0",
     "validate": "npm install && npm run lint && npm run test:ci",
     "test:ci": "jest --watchAll=false --coverage --ci",
     "build:android": "cd android && ./gradlew clean && ./gradlew assembleDebug",

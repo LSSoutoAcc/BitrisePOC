@@ -39,15 +39,15 @@ workflows:
     - yarn@2.0:
         inputs:
         - command: install
-        - workdir: $BITRISE_SOURCE_DIR
+        - workdir: "$WORKDIR"
     - yarn@2.0:
         inputs:
         - command: test
-        - workdir: $BITRISE_SOURCE_DIR
+        - workdir: "$WORKDIR"
     - yarn@2.0:
         inputs:
         - command: lint
-        - workdir: $BITRISE_SOURCE_DIR
+        - workdir: "$WORKDIR"
     - save-npm-cache@1: {}
   android_build:
     description: Manual Android build workflow.
