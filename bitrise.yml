@@ -38,6 +38,10 @@ workflows:
     - restore-npm-cache@3: {}
     - yarn@2.0:
         inputs:
+        - command: cache clean
+        - workdir: "$WORKDIR"
+    - yarn@2.0:
+        inputs:
         - command: install --verbose
         - workdir: "$WORKDIR"
     - yarn@2.0:
