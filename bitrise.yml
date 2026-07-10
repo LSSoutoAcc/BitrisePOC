@@ -35,11 +35,25 @@ workflows:
     description: Run lint and tests on pull requests.
     steps:
     - git-clone@8: {}
-    - npm@3:
-        title: npm install
+    - script@1:
+        title: Install dependencies and run tests
         inputs:
-        - workdir: "$WORKDIR"
-        - command: run validate
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+            
+            # Check Node and NPM versions
+            node --version
+            npm --version
+
+            # Clean install dependencies based on package-lock.json
+            npm ci
+
+            # Run linter
+            npm run lint
+
+            # Run test suite
+            npm test
     # - npm@3:
     #     title: npm lint
     #     inputs:
