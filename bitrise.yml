@@ -92,6 +92,9 @@ workflows:
     - js_validation
     - android_build
     - ios_build
+  notificate:
+    steps:
+    - slack@4: {}
 trigger_map:
 - push_branch: main
   workflow: deploy
