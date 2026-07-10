@@ -91,12 +91,13 @@ workflows:
         title: Run inline shell script
         inputs:
         - content: cd ios
+    - certificate-and-profile-installer@1: {}
     - fastlane@2:
         inputs:
         - lane: ios build_personal
         - working_directory: ios
         - update_fastlane: false
-        - work_dir: $BITRISE_SOURCE_DIR/ios
+        - work_dir: "$BITRISE_SOURCE_DIR/ios"
     - deploy-to-bitrise-io@2:
         title: Upload IPA
         inputs:
