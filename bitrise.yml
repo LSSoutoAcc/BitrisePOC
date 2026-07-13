@@ -110,7 +110,7 @@ workflows:
     description: Changelog generation for QA release branches.
     steps:
     - yarn@2.0:
-      inputs:
+        inputs:
         - command: install
         - workdir: "$WORKDIR"
     - yarn@2.0:
@@ -121,7 +121,7 @@ workflows:
     description: Changelog generation for PROD release branches
     steps:
     - yarn@2.0:
-      inputs:
+        inputs:
         - command: install
         - workdir: "$WORKDIR"
     - yarn@2.0:
