@@ -148,6 +148,8 @@ trigger_map:
     workflow: generate_changelog_prod
   - push_branch: "ACC/*/hotfix/*"
     workflow: hotfix_validation
+  - push_branch: "main"
+    workflow: js_validation
 pipelines:
   feature_dev:
     workflows:
