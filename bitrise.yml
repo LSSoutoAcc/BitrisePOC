@@ -140,7 +140,7 @@ workflows:
 trigger_map:
   - pull_request_source_branch: "(feature|bugfix|poc|strategic|hotfix)/.*"
     workflow: js_validation
-  - push_branch: "(develop|main)"
+  - push_branch: "develop|main"
     workflow: js_validation
   - push_branch: "release/qa/.*"
     pipeline: release_qa
