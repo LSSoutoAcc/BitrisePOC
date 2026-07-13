@@ -138,18 +138,16 @@ workflows:
     steps:
     - slack@4: {}
 trigger_map:
-  - pull_request_source_branch: "*"
+  - pull_request_source_branch: "{feature|bugfix|poc|strategic|hotfix}/*"
     workflow: js_validation
-  - push_branch: "ACC/*/develop"
+  - push_branch: "{develop|main}"
     workflow: js_validation
-  - push_branch: "ACC/*/release/qa/*"
-    workflow: generate_changelog_qa
-  - push_branch: "ACC/*/release/prod/*"
-    workflow: generate_changelog_prod
-  - push_branch: "ACC/*/hotfix/*"
+  - push_branch: "release/qa/*"
+    pipeline: release_qa
+  - push_branch: "release/prod/*"
+    pipeline: release_prod
+  - push_branch: "hotfix/*"
     workflow: hotfix_validation
-  - push_branch: "main"
-    pipeline: feature_prod
 pipelines:
   feature_dev:
     workflows:
@@ -195,12 +193,15 @@ pipelines:
   release_qa:
     workflows:
       js_validation: {}
+      set_env_dev:
+        depends_on:
+        - js_validation
       ios_build:
         depends_on:
-        - js_validation
+        - set_env_dev
       android_build:
         depends_on:
-        - js_validation
+        - set_env_dev
       generate_changelog_qa:
         depends_on:
         - ios_build
@@ -211,12 +212,15 @@ pipelines:
   release_prod:
     workflows:
       js_validation: {}
+      set_env_prod:
+        depends_on:
+        - js_validation
       ios_build:
         depends_on:
-        - js_validation
+        - set_env_prod
       android_build:
         depends_on:
-        - js_validation
+        - set_env_prod
       generate_changelog_prod:
         depends_on:
         - ios_build
