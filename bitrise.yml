@@ -96,31 +96,27 @@ workflows:
     - cocoapods-install@3:
         inputs:
         - is_cache_disabled: 'true'
-  deploy:
-    description: Legacy full validation flow for main/master.
-    before_run:
-    - js_validation
-    - android_build
-    - ios_build
-  qa_release_validation:
-    description: Validate ACC release/qa branches and QA changelog generation.
-    before_run:
-    - android_build
-    - ios_build
+  generate_changelog_qa:
+    description: Changelog generation for QA release branches.
     steps:
     - yarn@2.0:
-        inputs:
-        - command: release:qa --dry-run
+      inputs:
+        - command: install
         - workdir: "$WORKDIR"
-  prod_release_validation:
-    description: Validate ACC release/prod branches and PROD changelog generation.
-    before_run:
-    - android_build
-    - ios_build
-    steps:
     - yarn@2.0:
         inputs:
-        - command: release:prod --dry-run
+        - command: release:qa
+        - workdir: "$WORKDIR"
+  generate_changelog_prod:
+    description: Changelog generation for PROD release branches
+    steps:
+    - yarn@2.0:
+      inputs:
+        - command: install
+        - workdir: "$WORKDIR"
+    - yarn@2.0:
+        inputs:
+        - command: release:prod
         - workdir: "$WORKDIR"
   hotfix_validation:
     description: Validate ACC hotfix branches before production merge.
@@ -137,9 +133,9 @@ trigger_map:
   - push_branch: "ACC/*/develop"
     workflow: js_validation
   - push_branch: "ACC/*/release/qa/*"
-    workflow: qa_release_validation
+    workflow: generate_changelog_qa
   - push_branch: "ACC/*/release/prod/*"
-    workflow: prod_release_validation
+    workflow: generate_changelog_prod
   - push_branch: "ACC/*/hotfix/*"
     workflow: hotfix_validation
 pipelines:
@@ -168,18 +164,32 @@ pipelines:
   release_qa:
     workflows:
       js_validation: {}
-      qa_release_validation:
+      ios_build:
         depends_on:
         - js_validation
+      android_build:
+        depends_on:
+        - js_validation
+      generate_changelog_qa:
+        depends_on:
+        - ios_build
+        - android_build
       notificate:
         depends_on:
         - qa_release_validation
   release_prod:
     workflows:
       js_validation: {}
-      prod_release_validation:
+      ios_build:
         depends_on:
         - js_validation
+      android_build:
+        depends_on:
+        - js_validation
+      generate_changelog_prod:
+        depends_on:
+        - ios_build
+        - android_build
       notificate:
         depends_on:
-        - prod_release_validation
+        - generate_changelog_prod
