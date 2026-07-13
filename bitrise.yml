@@ -176,7 +176,7 @@ pipelines:
         - android_build
       notificate:
         depends_on:
-        - qa_release_validation
+        - generate_changelog_qa
   release_prod:
     workflows:
       js_validation: {}
