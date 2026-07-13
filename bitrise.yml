@@ -32,7 +32,7 @@ app:
       is_expand: false
 workflows:
   js_validation:
-    description: Run lint and tests on pull requests.
+    description: Run lint and tests on development and pull request flows.
     steps:
     - git-clone@8: {}
     - restore-npm-cache@3: {}
@@ -49,8 +49,26 @@ workflows:
         - command: lint
         - workdir: "$WORKDIR"
     - save-npm-cache@1: {}
+  js_build_deploy:
+    description: Build and deploy JS artifacts for inside libs.
+    steps:
+    - git-clone@8: {}
+    - restore-npm-cache@3: {}
+    - yarn@2.0:
+        inputs:
+        - command: install
+        - workdir: "$WORKDIR"
+    - yarn@2.0:
+        inputs:
+        - command: build
+        - workdir: "$WORKDIR"
+    - yarn@2.0:
+        inputs:
+        - command: deploy_nexus
+        - workdir: "$WORKDIR"
+    - save-npm-cache@1: {}
   android_build:
-    description: Manual Android build workflow.
+    description: Build Android artifact for release and hotfix validations.
     steps:
     - git-clone@8: {}
     - yarn@0:
@@ -65,7 +83,7 @@ workflows:
         - workdir: "$WORKDIR"
         - command: run build:android
   ios_build:
-    description: Manual iOS build workflow for Apple Personal Team.
+    description: Build iOS dependencies for release and hotfix validations.
     meta:
       bitrise.io:
         stack: osx-xcode-26.6.x
@@ -79,7 +97,35 @@ workflows:
         inputs:
         - is_cache_disabled: 'true'
   deploy:
-    description: Run tests, Android build and iOS build on main.
+    description: Legacy full validation flow for main/master.
+    before_run:
+    - js_validation
+    - android_build
+    - ios_build
+  qa_release_validation:
+    description: Validate ACC release/qa branches and QA changelog generation.
+    before_run:
+    - js_validation
+    - android_build
+    - ios_build
+    steps:
+    - yarn@2.0:
+        inputs:
+        - command: release:qa --dry-run
+        - workdir: "$WORKDIR"
+  prod_release_validation:
+    description: Validate ACC release/prod branches and PROD changelog generation.
+    before_run:
+    - js_validation
+    - android_build
+    - ios_build
+    steps:
+    - yarn@2.0:
+        inputs:
+        - command: release:prod --dry-run
+        - workdir: "$WORKDIR"
+  hotfix_validation:
+    description: Validate ACC hotfix branches before production merge.
     before_run:
     - js_validation
     - android_build
@@ -88,18 +134,36 @@ workflows:
     steps:
     - slack@4: {}
 trigger_map:
-- push_branch: main
-  workflow: deploy
 - pull_request_source_branch: "*"
   workflow: js_validation
+- push_branch: "ACC/*/develop"
+  workflow: js_validation
+- push_branch: "ACC/*/release/qa/*"
+  workflow: qa_release_validation
+- push_branch: "ACC/*/release/prod/*"
+  workflow: prod_release_validation
+- push_branch: "ACC/*/hotfix/*"
+  workflow: hotfix_validation
+- push_branch: main
+  workflow: deploy
 pipelines:
-  mobile:
+  feature:
     workflows:
       js_validation: {}
       android_build:
         depends_on:
         - js_validation
       ios_build:
+        depends_on:
+        - js_validation
+      notificate:
+        depends_on:
+        - ios_build
+        - android_build
+  lib:
+    workflows:
+      js_validation: {}
+      js_build_deploy:
         depends_on:
         - js_validation
       notificate:
