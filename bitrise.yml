@@ -67,6 +67,16 @@ workflows:
         - command: deploy_nexus
         - workdir: "$WORKDIR"
     - save-npm-cache@1: {}
+  set_env_dev:
+    envs:
+    - API_URL: "www.api-dev.com/api"
+    - NODE_ENV: development
+    steps: []   # nenhum step necessário, só declara as envs
+  set_env_prod:
+    envs:
+    - API_URL: "www.api-prod.com/api"
+    - NODE_ENV: production
+    steps: []
   android_build:
     description: Build Android artifact for release and hotfix validations.
     steps:
@@ -139,15 +149,34 @@ trigger_map:
   - push_branch: "ACC/*/hotfix/*"
     workflow: hotfix_validation
 pipelines:
-  feature:
+  feature_dev:
     workflows:
       js_validation: {}
+      set_env_dev:
+        depends_on:
+        - js_validation
       android_build:
         depends_on:
-        - js_validation
+        - set_env_dev
       ios_build:
         depends_on:
+        - set_env_dev
+      notificate:
+        depends_on:
+        - ios_build
+        - android_build
+  feature_prod:
+    workflows:
+      js_validation: {}
+      set_env_prod:
+        depends_on:
         - js_validation
+      android_build:
+        depends_on:
+        - set_env_prod
+      ios_build:
+        depends_on:
+        - set_env_prod
       notificate:
         depends_on:
         - ios_build
