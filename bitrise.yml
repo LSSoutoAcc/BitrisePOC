@@ -105,7 +105,6 @@ workflows:
   qa_release_validation:
     description: Validate ACC release/qa branches and QA changelog generation.
     before_run:
-    - js_validation
     - android_build
     - ios_build
     steps:
@@ -116,7 +115,6 @@ workflows:
   prod_release_validation:
     description: Validate ACC release/prod branches and PROD changelog generation.
     before_run:
-    - js_validation
     - android_build
     - ios_build
     steps:
@@ -134,18 +132,16 @@ workflows:
     steps:
     - slack@4: {}
 trigger_map:
-- pull_request_source_branch: "*"
-  workflow: js_validation
-- push_branch: "ACC/*/develop"
-  workflow: js_validation
-- push_branch: "ACC/*/release/qa/*"
-  workflow: qa_release_validation
-- push_branch: "ACC/*/release/prod/*"
-  workflow: prod_release_validation
-- push_branch: "ACC/*/hotfix/*"
-  workflow: hotfix_validation
-- push_branch: main
-  workflow: deploy
+  - pull_request_source_branch: "*"
+    workflow: js_validation
+  - push_branch: "ACC/*/develop"
+    workflow: js_validation
+  - push_branch: "ACC/*/release/qa/*"
+    workflow: qa_release_validation
+  - push_branch: "ACC/*/release/prod/*"
+    workflow: prod_release_validation
+  - push_branch: "ACC/*/hotfix/*"
+    workflow: hotfix_validation
 pipelines:
   feature:
     workflows:
@@ -168,5 +164,22 @@ pipelines:
         - js_validation
       notificate:
         depends_on:
-        - ios_build
-        - android_build
+        - js_build_deploy
+  release_qa:
+    workflows:
+      js_validation: {}
+      qa_release_validation:
+        depends_on:
+        - js_validation
+      notificate:
+        depends_on:
+        - qa_release_validation
+  release_prod:
+    workflows:
+      js_validation: {}
+      prod_release_validation:
+        depends_on:
+        - js_validation
+      notificate:
+        depends_on:
+        - prod_release_validation
