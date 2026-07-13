@@ -138,15 +138,15 @@ workflows:
     steps:
     - slack@4: {}
 trigger_map:
-  - pull_request_source_branch: "{feature|bugfix|poc|strategic|hotfix}/*"
+  - pull_request_source_branch: "(feature|bugfix|poc|strategic|hotfix)/.*"
     workflow: js_validation
-  - push_branch: "{develop|main}"
+  - push_branch: "(develop|main)$"
     workflow: js_validation
-  - push_branch: "release/qa/*"
+  - push_branch: "release/qa/.*"
     pipeline: release_qa
-  - push_branch: "release/prod/*"
+  - push_branch: "release/prod/.*"
     pipeline: release_prod
-  - push_branch: "hotfix/*"
+  - push_branch: "hotfix/.*"
     workflow: hotfix_validation
 pipelines:
   feature_dev:
