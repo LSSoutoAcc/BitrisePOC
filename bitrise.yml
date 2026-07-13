@@ -149,8 +149,25 @@ trigger_map:
   - push_branch: "ACC/*/hotfix/*"
     workflow: hotfix_validation
   - push_branch: "main"
-    workflow: js_validation
+    pipeline: deploy
 pipelines:
+  deploy:
+    description: Full validation and build pipeline for main branch.
+    workflows:
+      js_validation: {}
+      set_env_dev:
+        depends_on:
+        - js_validation
+      android_build:
+        depends_on:
+        - set_env_dev
+      ios_build:
+        depends_on:
+        - set_env_dev
+      notificate:
+        depends_on:
+        - android_build
+        - ios_build
   feature_dev:
     workflows:
       js_validation: {}
