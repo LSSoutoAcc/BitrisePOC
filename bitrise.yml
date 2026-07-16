@@ -42,12 +42,23 @@ workflows:
         - workdir: "$WORKDIR"
     - yarn@2.0:
         inputs:
-        - command: test
+        - command: test:ci
         - workdir: "$WORKDIR"
     - yarn@2.0:
         inputs:
         - command: lint
         - workdir: "$WORKDIR"
+    - script@1:
+        title: Collect coverage artifact
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+            if [ -d "coverage/lcov-report" ]; then
+              mkdir -p "$BITRISE_DEPLOY_DIR/coverage"
+              cp -R coverage/lcov-report/. "$BITRISE_DEPLOY_DIR/coverage/"
+            fi
+    - deploy-to-bitrise-io@2: {}
     - save-npm-cache@1: {}
   js_build_deploy:
     description: Build and deploy JS artifacts for inside libs.
