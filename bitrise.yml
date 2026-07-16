@@ -69,12 +69,12 @@ workflows:
     - save-npm-cache@1: {}
   set_env_dev:
     envs:
-    - API_URL: "www.api-dev.com/api"
+    - API_URL: www.api-dev.com/api
     - NODE_ENV: development
-    steps: []   # nenhum step necessário, só declara as envs
+    steps: []
   set_env_prod:
     envs:
-    - API_URL: "www.api-prod.com/api"
+    - API_URL: www.api-prod.com/api
     - NODE_ENV: production
     steps: []
   android_build:
@@ -138,16 +138,21 @@ workflows:
     steps:
     - slack@4: {}
 trigger_map:
-  - pull_request_source_branch: '(feature|bugfix|poc|strategic|hotfix)\/.*'
-    workflow: js_validation
-  - push_branch: '(develop|main)'
-    workflow: js_validation
-  - push_branch: 'release\/qa\/.*'
-    pipeline: release_qa
-  - push_branch: 'release\/prod\/.*'
-    pipeline: release_prod
-  - push_branch: 'hotfix\/.*'
-    workflow: hotfix_validation
+- pull_request_source_branch:
+    regex: (feature|bugfix|poc|strategic|hotfix)\/.*
+  workflow: js_validation
+- push_branch:
+    regex: (develop|main)
+  workflow: js_validation
+- push_branch:
+    regex: release\/qa\/.*
+  pipeline: release_qa
+- push_branch:
+    regex: release\/prod\/.*
+  pipeline: release_prod
+- push_branch:
+    regex: hotfix\/.*
+  workflow: hotfix_validation
 pipelines:
   feature_dev:
     workflows:
