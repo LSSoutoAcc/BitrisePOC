@@ -54,11 +54,22 @@ workflows:
         - content: |-
             #!/usr/bin/env bash
             set -euo pipefail
+
+            echo "$BITRISE_TEST_RESULT_DIR"
+
+            echo "$BITRISE_DEPLOY_DIR"
+
             # Ensure junit is in the Bitrise test results directory for the Tests tab.
             if [ -f "./test-results/junit.xml" ] && [ ! -f "$BITRISE_TEST_RESULT_DIR/junit.xml" ]; then
               mkdir -p "$BITRISE_TEST_RESULT_DIR"
               cp "./test-results/junit.xml" "$BITRISE_TEST_RESULT_DIR/junit.xml"
             fi
+
+            echo "Test results directory contents:"
+            ls -la "$BITRISE_TEST_RESULT_DIR"
+
+            echo "Junit test results:"
+            head -n 20 "$BITRISE_TEST_RESULT_DIR/junit.xml"
 
             # Also copy junit to deploy dir so it appears under build artifacts.
             if [ -f "$BITRISE_TEST_RESULT_DIR/junit.xml" ]; then
@@ -69,6 +80,8 @@ workflows:
               mkdir -p "$BITRISE_DEPLOY_DIR/coverage"
               cp -R coverage/lcov-report/. "$BITRISE_DEPLOY_DIR/coverage/"
             fi
+
+            ls -la "$BITRISE_DEPLOY_DIR"
     - custom-test-results-export@1:
         inputs:
         - test_name: Upload javascript tests
