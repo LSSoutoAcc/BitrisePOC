@@ -81,7 +81,7 @@ workflows:
     - custom-test-results-export@1:
         inputs:
         - test_name: Upload javascript tests
-        - base_path: "$BITRISE_SOURCE_DIR/coverage"
+        - base_path: "$BITRISE_DEPLOY_DIR"
         - search_pattern: "junit.xml"
     - deploy-to-bitrise-io@2:
         title: Upload test and coverage artifacts
