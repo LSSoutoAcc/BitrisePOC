@@ -48,6 +48,10 @@ workflows:
         inputs:
         - command: lint
         - workdir: "$WORKDIR"
+    - yarn@2.0:
+      inputs:
+      - command: ci:debug:paths
+      - workdir: "$WORKDIR"
     - script@1:
         title: Collect coverage and junit artifacts
         inputs:
@@ -81,6 +85,7 @@ workflows:
         - test_name: Upload javascript tests
         - base_path: "$BITRISE_SOURCE_DIR/coverage"
         - search_pattern: "junit.xml"
+        - verbose_log: "true"
     - deploy-to-bitrise-io@2:
         title: Upload test and coverage artifacts
     - save-npm-cache@1: {}
