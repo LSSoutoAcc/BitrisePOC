@@ -9,7 +9,7 @@
     "start": "react-native start",
     "test": "ls -la node_modules && npx jest@29.7.0",
     "validate": "npm install && npm run lint && npm run test:ci",
-    "test:ci": "mkdir -p \"${BITRISE_TEST_RESULT_DIR:-./test-results}\" && JEST_JUNIT_OUTPUT_DIR=\"${BITRISE_TEST_RESULT_DIR:-./test-results}\" JEST_JUNIT_OUTPUT_NAME=junit.xml jest --watchAll=false --coverage --ci --reporters=default --reporters=jest-junit",
+    "test:ci": "mkdir -p ./coverage && JEST_JUNIT_OUTPUT_DIR=./coverage JEST_JUNIT_OUTPUT_NAME=junit.xml jest --watchAll=false --coverage --ci --reporters=default --reporters=jest-junit",
     "build:android": "cd android && ./gradlew clean && ./gradlew assembleDebug",
     "build:ios": "cd ios && fastlane ios build_personal",
     "install:pods": "cd ios && pod install && cd .."
