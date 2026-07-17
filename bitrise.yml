@@ -49,19 +49,28 @@ workflows:
         - command: lint
         - workdir: "$WORKDIR"
     - script@1:
-        title: Collect coverage artifact
+        title: Collect coverage and junit artifacts
         inputs:
         - content: |-
             #!/usr/bin/env bash
             set -euo pipefail
+            # Ensure junit is in the Bitrise test results directory for the Tests tab.
+            if [ -f "./test-results/junit.xml" ] && [ ! -f "$BITRISE_TEST_RESULT_DIR/junit.xml" ]; then
+              mkdir -p "$BITRISE_TEST_RESULT_DIR"
+              cp "./test-results/junit.xml" "$BITRISE_TEST_RESULT_DIR/junit.xml"
+            fi
+
+            # Also copy junit to deploy dir so it appears under build artifacts.
+            if [ -f "$BITRISE_TEST_RESULT_DIR/junit.xml" ]; then
+              cp "$BITRISE_TEST_RESULT_DIR/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
+            fi
+
             if [ -d "coverage/lcov-report" ]; then
               mkdir -p "$BITRISE_DEPLOY_DIR/coverage"
               cp -R coverage/lcov-report/. "$BITRISE_DEPLOY_DIR/coverage/"
             fi
     - deploy-to-bitrise-io@2:
-        title: Upload Coverage
-        inputs:
-        - deploy_path: "$BITRISE_DEPLOY_DIR/coverage/"
+        title: Upload test and coverage artifacts
     - save-npm-cache@1: {}
   js_build_deploy:
     description: Build and deploy JS artifacts for inside libs.
