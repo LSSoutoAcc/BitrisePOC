@@ -73,6 +73,19 @@ workflows:
             #   cp -R coverage/lcov-report/. "$BITRISE_DEPLOY_DIR/coverage/"
             # fi
 
+            if [ -f "./coverage/junit.xml" ]; then
+              echo "Junit test results:"
+              head -n 20 "./coverage/junit.xml" || true
+              cp "./coverage/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
+            else
+              echo "WARNING: junit.xml not found at ./coverage/junit.xml"
+            fi
+
+            if [ -d "coverage/lcov-report" ]; then
+              mkdir -p "$BITRISE_DEPLOY_DIR/coverage"
+              cp -R coverage/lcov-report/. "$BITRISE_DEPLOY_DIR/"
+            fi
+
     - yarn@2.0:
         inputs:
         - command: ci:debug:paths
