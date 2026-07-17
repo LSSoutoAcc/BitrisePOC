@@ -48,10 +48,6 @@ workflows:
         inputs:
         - command: lint
         - workdir: "$WORKDIR"
-    - yarn@2.0:
-      inputs:
-      - command: ci:debug:paths
-      - workdir: "$WORKDIR"
     - script@1:
         title: Collect coverage and junit artifacts
         inputs:
@@ -80,6 +76,10 @@ workflows:
             fi
 
             ls -la "$BITRISE_DEPLOY_DIR"
+    - yarn@2.0:
+        inputs:
+        - command: ci:debug:paths
+        - workdir: "$WORKDIR"
     - custom-test-results-export@1:
         inputs:
         - test_name: Upload javascript tests
