@@ -61,7 +61,7 @@ workflows:
     - deploy-to-bitrise-io@2:
         title: Upload Coverage
         inputs:
-        - deploy_path: "$BITRISE_DEPLOY_DIR/coverage"
+        - deploy_path: "$BITRISE_DEPLOY_DIR/coverage/"
     - save-npm-cache@1: {}
   js_build_deploy:
     description: Build and deploy JS artifacts for inside libs.
