@@ -58,7 +58,10 @@ workflows:
               mkdir -p "$BITRISE_DEPLOY_DIR/coverage"
               cp -R coverage/lcov-report/. "$BITRISE_DEPLOY_DIR/coverage/"
             fi
-    - deploy-to-bitrise-io@2: {}
+    - deploy-to-bitrise-io@2:
+        title: Upload Coverage
+        inputs:
+        - deploy_path: "$BITRISE_DEPLOY_DIR/coverage"
     - save-npm-cache@1: {}
   js_build_deploy:
     description: Build and deploy JS artifacts for inside libs.
@@ -103,6 +106,10 @@ workflows:
         inputs:
         - workdir: "$WORKDIR"
         - command: run build:android
+    - deploy-to-bitrise-io@2:
+        title: Upload APK
+        inputs:
+        - deploy_path: "$BITRISE_SOURCE_DIR/android/app/build/outputs/apk/debug"
   ios_build:
     description: Build iOS dependencies for release and hotfix validations.
     meta:
