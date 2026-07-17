@@ -9,7 +9,8 @@
     "start": "react-native start",
     "test": "ls -la node_modules && npx jest@29.7.0",
     "validate": "npm install && npm run lint && npm run test:ci",
-    "test:ci": "jest --watchAll=false --coverage --ci",
+    "test:ci": "mkdir -p ./coverage && JEST_JUNIT_OUTPUT_DIR=./coverage JEST_JUNIT_OUTPUT_NAME=junit.xml jest --watchAll=false --coverage --ci --reporters=default --reporters=jest-junit",
+    "ci:debug:paths": "echo \"BITRISE_SOURCE_DIR=${BITRISE_SOURCE_DIR:-<unset>}\" && echo \"BITRISE_DEPLOY_DIR=${BITRISE_DEPLOY_DIR:-<unset>}\" && echo \"BITRISE_TEST_RESULT_DIR=${BITRISE_TEST_RESULT_DIR:-<unset>}\" && echo '=== ls coverage ===' && ls -la ./coverage || true && echo '=== ls deploy ===' && ls -la \"${BITRISE_DEPLOY_DIR:-./deploy}\" || true && echo '=== ls test results ===' && ls -la \"${BITRISE_TEST_RESULT_DIR:-./test-results}\" || true && echo '=== head coverage/junit.xml ===' && head -n 20 ./coverage/junit.xml || true",
     "build:android": "cd android && ./gradlew clean && ./gradlew assembleDebug",
     "build:ios": "cd ios && fastlane ios build_personal",
     "install:pods": "cd ios && pod install && cd .."
@@ -38,6 +39,7 @@
     "@types/react-test-renderer": "^19.1.0",
     "eslint": "^8.19.0",
     "jest": "^29.6.3",
+    "jest-junit": "^16.0.0",
     "prettier": "2.8.8",
     "react-test-renderer": "19.2.3",
     "typescript": "^5.8.3"

@@ -42,12 +42,63 @@ workflows:
         - workdir: "$WORKDIR"
     - yarn@2.0:
         inputs:
-        - command: test
+        - command: test:ci
         - workdir: "$WORKDIR"
     - yarn@2.0:
         inputs:
         - command: lint
         - workdir: "$WORKDIR"
+    - script@1:
+        title: Collect coverage and junit artifacts
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -euo pipefail
+
+            echo "BITRISE_TEST_RESULT_DIR: $BITRISE_TEST_RESULT_DIR"
+            echo "BITRISE_DEPLOY_DIR: $BITRISE_DEPLOY_DIR"
+
+            # ls -la "$BITRISE_TEST_RESULT_DIR" || true
+
+            # if [ -f "./coverage/junit.xml" ]; then
+            #   echo "Junit test results:"
+            #   head -n 20 "./coverage/junit.xml" || true
+            #   cp "./coverage/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
+            # else
+            #   echo "WARNING: junit.xml not found at ./coverage/junit.xml"
+            # fi
+
+            # if [ -d "coverage/lcov-report" ]; then
+            #   mkdir -p "$BITRISE_DEPLOY_DIR/coverage"
+            #   cp -R coverage/lcov-report/. "$BITRISE_DEPLOY_DIR/coverage/"
+            # fi
+
+            if [ -f "./coverage/junit.xml" ]; then
+              echo "Junit test results:"
+              head -n 20 "./coverage/junit.xml" || true
+              cp "./coverage/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
+            else
+              echo "WARNING: junit.xml not found at ./coverage/junit.xml"
+            fi
+
+            if [ -d "coverage/lcov-report" ]; then
+              mkdir -p "$BITRISE_DEPLOY_DIR/coverage"
+              cp -R coverage/lcov-report/. "$BITRISE_DEPLOY_DIR/"
+            fi
+
+    - yarn@2.0:
+        inputs:
+        - command: ci:debug:paths
+        - workdir: "$WORKDIR"
+    - custom-test-results-export@1:
+        inputs:
+        - test_name: Upload javascript tests
+        - search_pattern: "$BITRISE_SOURCE_DIR/coverage/junit.xml"
+        - verbose_log: "yes"
+    - deploy-to-bitrise-io@2:
+        title: Upload test and coverage artifacts
+        inputs:
+        - debug_mode: "true"
     - save-npm-cache@1: {}
   js_build_deploy:
     description: Build and deploy JS artifacts for inside libs.
@@ -92,6 +143,10 @@ workflows:
         inputs:
         - workdir: "$WORKDIR"
         - command: run build:android
+    - deploy-to-bitrise-io@2:
+        title: Upload APK
+        inputs:
+        - deploy_path: "$BITRISE_SOURCE_DIR/android/app/build/outputs/apk/debug"
   ios_build:
     description: Build iOS dependencies for release and hotfix validations.
     meta:
