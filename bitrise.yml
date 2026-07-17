@@ -58,27 +58,21 @@ workflows:
             echo "BITRISE_TEST_RESULT_DIR: $BITRISE_TEST_RESULT_DIR"
             echo "BITRISE_DEPLOY_DIR: $BITRISE_DEPLOY_DIR"
 
-            ls -la "$BITRISE_TEST_RESULT_DIR" || true
+            # ls -la "$BITRISE_TEST_RESULT_DIR" || true
 
-            if [ -f "./coverage/junit.xml" ]; then
-              echo "Junit test results:"
-              head -n 20 "./coverage/junit.xml" || true
-              cp "./coverage/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
-              cp "./coverage/junit.xml" "$BITRISE_TEST_RESULT_DIR/junit.xml"
-            else
-              echo "WARNING: junit.xml not found at ./coverage/junit.xml"
-            fi
+            # if [ -f "./coverage/junit.xml" ]; then
+            #   echo "Junit test results:"
+            #   head -n 20 "./coverage/junit.xml" || true
+            #   cp "./coverage/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
+            # else
+            #   echo "WARNING: junit.xml not found at ./coverage/junit.xml"
+            # fi
 
-            if [ -d "coverage/lcov-report" ]; then
-              mkdir -p "$BITRISE_DEPLOY_DIR/coverage"
-              cp -R coverage/lcov-report/. "$BITRISE_DEPLOY_DIR/coverage/"
-            fi
+            # if [ -d "coverage/lcov-report" ]; then
+            #   mkdir -p "$BITRISE_DEPLOY_DIR/coverage"
+            #   cp -R coverage/lcov-report/. "$BITRISE_DEPLOY_DIR/coverage/"
+            # fi
 
-            echo "Test results directory contents:"
-            ls -la "$BITRISE_TEST_RESULT_DIR" || true
-
-            echo "Deploy directory contents:"
-            ls -la "$BITRISE_DEPLOY_DIR"
     - yarn@2.0:
         inputs:
         - command: ci:debug:paths
@@ -87,7 +81,6 @@ workflows:
         inputs:
         - test_name: Upload javascript tests
         - search_pattern: "$BITRISE_SOURCE_DIR/coverage/junit.xml"
-        - bitrise_test_result_dir: "$BITRISE_TEST_RESULT_DIR"
         - verbose_log: "yes"
     - deploy-to-bitrise-io@2:
         title: Upload test and coverage artifacts
