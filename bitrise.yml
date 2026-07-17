@@ -82,7 +82,7 @@ workflows:
         inputs:
         - test_name: Upload javascript tests
         - base_path: "$BITRISE_DEPLOY_DIR"
-        - search_pattern: "junit.xml"
+        - search_pattern: '**\/*.xml'
     - deploy-to-bitrise-io@2:
         title: Upload test and coverage artifacts
     - save-npm-cache@1: {}
