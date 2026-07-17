@@ -84,7 +84,7 @@ workflows:
         inputs:
         - test_name: Upload javascript tests
         - base_path: "$BITRISE_SOURCE_DIR/coverage"
-        - search_pattern: "junit.xml"
+        - search_pattern: "$BITRISE_SOURCE_DIR/coverage/junit.xml"
         - verbose_log: "yes"
     - deploy-to-bitrise-io@2:
         title: Upload test and coverage artifacts
