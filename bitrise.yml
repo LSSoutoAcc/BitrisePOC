@@ -58,7 +58,6 @@ workflows:
             echo "BITRISE_TEST_RESULT_DIR: $BITRISE_TEST_RESULT_DIR"
             echo "BITRISE_DEPLOY_DIR: $BITRISE_DEPLOY_DIR"
 
-            echo "Test results directory contents:"
             ls -la "$BITRISE_TEST_RESULT_DIR" || true
 
             if [ -f "./coverage/junit.xml" ]; then
@@ -69,12 +68,17 @@ workflows:
               echo "WARNING: junit.xml not found at ./coverage/junit.xml"
             fi
 
-
             if [ -d "coverage/lcov-report" ]; then
               mkdir -p "$BITRISE_DEPLOY_DIR/coverage"
               cp -R coverage/lcov-report/. "$BITRISE_DEPLOY_DIR/coverage/"
             fi
 
+            cp -R coverage/. "$BITRISE_TEST_RESULT_DIR" || true
+
+            echo "Test results directory contents:"
+            ls -la "$BITRISE_TEST_RESULT_DIR" || true
+
+            echo "Deploy directory contents:"
             ls -la "$BITRISE_DEPLOY_DIR"
     - yarn@2.0:
         inputs:
@@ -83,9 +87,8 @@ workflows:
     - custom-test-results-export@1:
         inputs:
         - test_name: Upload javascript tests
-        - base_path: "$BITRISE_SOURCE_DIR/coverage"
         - search_pattern: "$BITRISE_SOURCE_DIR/coverage/junit.xml"
-        - bitrise_test_result_dir: "$BITRISE_TEST_DEPLOY_DIR"
+        - bitrise_test_result_dir: "$BITRISE_TEST_RESULT_DIR"
         - verbose_log: "yes"
     - deploy-to-bitrise-io@2:
         title: Upload test and coverage artifacts
