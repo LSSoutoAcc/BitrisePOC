@@ -85,9 +85,12 @@ workflows:
         - test_name: Upload javascript tests
         - base_path: "$BITRISE_SOURCE_DIR/coverage"
         - search_pattern: "$BITRISE_SOURCE_DIR/coverage/junit.xml"
+        - bitrise_test_result_dir: "$BITRISE_TEST_DEPLOY_DIR"
         - verbose_log: "yes"
     - deploy-to-bitrise-io@2:
         title: Upload test and coverage artifacts
+        inputs:
+        - debug_mode: "true"
     - save-npm-cache@1: {}
   js_build_deploy:
     description: Build and deploy JS artifacts for inside libs.
