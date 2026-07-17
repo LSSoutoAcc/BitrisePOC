@@ -69,10 +69,13 @@ workflows:
               mkdir -p "$BITRISE_DEPLOY_DIR/coverage"
               cp -R coverage/lcov-report/. "$BITRISE_DEPLOY_DIR/coverage/"
             fi
+    - custom-test-results-export@1:
+        inputs:
+        - test_name: Upload javascript tests
+        - base_path: $BITRISE_DEPLOY_DIR
+        - search_pattern: "*"
     - deploy-to-bitrise-io@2:
         title: Upload test and coverage artifacts
-        inputs:
-        - deploy_path: "$BITRISE_DEPLOY_DIR"
     - save-npm-cache@1: {}
   js_build_deploy:
     description: Build and deploy JS artifacts for inside libs.
