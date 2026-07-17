@@ -56,22 +56,25 @@ workflows:
             set -euo pipefail
 
             echo "BITRISE_TEST_RESULT_DIR: $BITRISE_TEST_RESULT_DIR"
-
             echo "BITRISE_DEPLOY_DIR: $BITRISE_DEPLOY_DIR"
 
             echo "Test results directory contents:"
-            ls -la "$BITRISE_TEST_RESULT_DIR"
+            ls -la "$BITRISE_TEST_RESULT_DIR" || true
 
-            echo "Test results directory contents:"
-            ls -la "$BITRISE_TEST_RESULT_DIR/test-results"
-
-            echo "Junit test results:"
-            head -n 20 "$BITRISE_TEST_RESULT_DIR/test-results/junit.xml"
-
-            # Also copy junit to deploy dir so it appears under build artifacts.
-            if [ -f "$BITRISE_TEST_RESULT_DIR/test-results/junit.xml" ]; then
-              cp "$BITRISE_TEST_RESULT_DIR/test-results/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
+            if [ -f "$BITRISE_TEST_RESULT_DIR/junit.xml" ]; then
+              echo "Junit test results:"
+              head -n 20 "$BITRISE_TEST_RESULT_DIR/junit.xml" || true
+              cp "$BITRISE_TEST_RESULT_DIR/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
+            elif [ -f "./test-results/junit.xml" ]; then
+              echo "Junit found at local fallback path ./test-results/junit.xml"
+              mkdir -p "$BITRISE_TEST_RESULT_DIR"
+              cp "./test-results/junit.xml" "$BITRISE_TEST_RESULT_DIR/junit.xml"
+              cp "$BITRISE_TEST_RESULT_DIR/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
+              head -n 20 "$BITRISE_TEST_RESULT_DIR/junit.xml" || true
+            else
+              echo "WARNING: junit.xml not found in expected paths"
             fi
+
 
             if [ -d "coverage/lcov-report" ]; then
               mkdir -p "$BITRISE_DEPLOY_DIR/coverage"
@@ -82,8 +85,8 @@ workflows:
     - custom-test-results-export@1:
         inputs:
         - test_name: Upload javascript tests
-        - base_path: $BITRISE_DEPLOY_DIR
-        - search_pattern: "*"
+        - base_path: "$BITRISE_TEST_RESULT_DIR"
+        - search_pattern: "*.xml"
     - deploy-to-bitrise-io@2:
         title: Upload test and coverage artifacts
     - save-npm-cache@1: {}
