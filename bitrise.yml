@@ -59,23 +59,18 @@ workflows:
 
             echo "BITRISE_DEPLOY_DIR: $BITRISE_DEPLOY_DIR"
 
-            ls -la ./test-results
-            
-            # Ensure junit is in the Bitrise test results directory for the Tests tab.
-            if [ -f "./test-results/junit.xml" ] && [ ! -f "$BITRISE_TEST_RESULT_DIR/junit.xml" ]; then
-              mkdir -p "$BITRISE_TEST_RESULT_DIR"
-              cp "./test-results/junit.xml" "$BITRISE_TEST_RESULT_DIR/junit.xml"
-            fi
-
             echo "Test results directory contents:"
             ls -la "$BITRISE_TEST_RESULT_DIR"
 
+            echo "Test results directory contents:"
+            ls -la "$BITRISE_TEST_RESULT_DIR/test-results"
+
             echo "Junit test results:"
-            head -n 20 "$BITRISE_TEST_RESULT_DIR/junit.xml"
+            head -n 20 "$BITRISE_TEST_RESULT_DIR/test-results/junit.xml"
 
             # Also copy junit to deploy dir so it appears under build artifacts.
-            if [ -f "$BITRISE_TEST_RESULT_DIR/junit.xml" ]; then
-              cp "$BITRISE_TEST_RESULT_DIR/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
+            if [ -f "$BITRISE_TEST_RESULT_DIR/test-results/junit.xml" ]; then
+              cp "$BITRISE_TEST_RESULT_DIR/test-results/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
             fi
 
             if [ -d "coverage/lcov-report" ]; then
