@@ -64,9 +64,7 @@ workflows:
             if [ -f "./coverage/junit.xml" ]; then
               echo "Junit test results:"
               head -n 20 "./coverage/junit.xml" || true
-              mkdir -p "$BITRISE_TEST_RESULT_DIR"
-              cp "./coverage/junit.xml" "$BITRISE_TEST_RESULT_DIR/junit.xml"
-              cp "$BITRISE_TEST_RESULT_DIR/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
+              cp "./coverage/junit.xml" "$BITRISE_DEPLOY_DIR/junit.xml"
             else
               echo "WARNING: junit.xml not found at ./coverage/junit.xml"
             fi
@@ -81,7 +79,7 @@ workflows:
     - custom-test-results-export@1:
         inputs:
         - test_name: Upload javascript tests
-        - base_path: "$BITRISE_TEST_RESULT_DIR"
+        - base_path: "$BITRISE_DEPLOY_DIR"
         - search_pattern: "junit.xml"
     - deploy-to-bitrise-io@2:
         title: Upload test and coverage artifacts
