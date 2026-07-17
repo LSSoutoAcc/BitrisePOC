@@ -55,10 +55,12 @@ workflows:
             #!/usr/bin/env bash
             set -euo pipefail
 
-            echo "$BITRISE_TEST_RESULT_DIR"
+            echo "BITRISE_TEST_RESULT_DIR: $BITRISE_TEST_RESULT_DIR"
 
-            echo "$BITRISE_DEPLOY_DIR"
+            echo "BITRISE_DEPLOY_DIR: $BITRISE_DEPLOY_DIR"
 
+            ls -la ./test-results
+            
             # Ensure junit is in the Bitrise test results directory for the Tests tab.
             if [ -f "./test-results/junit.xml" ] && [ ! -f "$BITRISE_TEST_RESULT_DIR/junit.xml" ]; then
               mkdir -p "$BITRISE_TEST_RESULT_DIR"
